@@ -13,9 +13,11 @@ npm install
 
 ```
 
-then
-
 ```
 npm run serve
+```
+
+```
+navigate to http://localhost:8081/
 ```
 
