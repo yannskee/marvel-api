@@ -14,6 +14,7 @@
                 </div>
             </router-link>
         </div>
+        <div class="text-center" v-if="!isLoading && characters.length == 0" >No data available</div>
     </div>
 </template>
 
@@ -25,18 +26,16 @@ var md5 = require("js-md5");
 export default {
   name: "Characters",
   mounted() {
-    console.log(process.env.VUE_APP_MARVEL_PRIVATE_KEY)
     this.fetchCharacters()
   },
   data() {
     return {
-        isLoading: false,
+        isLoading: true,
         characters: []
     }
   },
   methods: {
     fetchCharacters() {
-        this.isLoading = true;
         let ts = Date.now();
         let hash = md5(ts+process.env.VUE_APP_MARVEL_PRIVATE_KEY+process.env.VUE_APP_MARVEL_PUBLIC_KEY);
         this.axios.get('http://gateway.marvel.com/v1/public/characters',{
@@ -47,16 +46,18 @@ export default {
             }
         }).then((res) => {
             this.isLoading = false;
-            this.characters = res.data.data.results.map(character => {
-                return {
-                    id : character.id,
-                    name : character.name,
-                    thumbnail : [character.thumbnail.path,character.thumbnail.extension].join('.'),
-                }
-            });
-        }).catch((error) => {
+            if(res.data.data.count > 0) {
+                this.characters = res.data.data.results.map(character => {
+                    return {
+                        id : character.id,
+                        name : character.name,
+                        thumbnail : [character.thumbnail.path,character.thumbnail.extension].join('.'),
+                    }
+                });                
+            }
+        }).catch(() => {
             this.isLoading = false;
-            console.log(error)
+            /* display error message to the user */
         })
     }
   }
